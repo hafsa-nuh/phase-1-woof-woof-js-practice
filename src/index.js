@@ -1,13 +1,14 @@
 document.addEventListener("DOMContentLoaded", init)
 
-function init(e){
-  const filterDogsButton = document.querySelector("#good-dog-filter")
-  filterDogsButton.addEventListener("click", toggleFilterDogs)
+const filterDogsButton = document.querySelector("#good-dog-filter")
+filterDogsButton.addEventListener("click", toggleFilterDogs)
+
+function init(){
   getDogs().then(addAllDogsToDogBar)
 }
 
-function toggleFilterDogs(e){
-  const filterDogsButton = document.querySelector("#good-dog-filter")
+// filtering the dogs
+function toggleFilterDogs(){
   if (filterDogsButton.innerText.includes("OFF")){
     filterDogsButton.innerText = "Filter good dogs: ON"
     updateDogBar()
@@ -17,8 +18,10 @@ function toggleFilterDogs(e){
   }
 }
 
+
+const dogBar = document.querySelector("#dog-bar")
+//adding dogs to the bar
 function addAllDogsToDogBar(dogArray, filter = false){
-  const dogBar = document.querySelector("#dog-bar")
   dogBar.innerHTML = ""
   if (filter) {
     dogArray.filter(dog => dog.isGoodDog).forEach(addDogSpantoDogBar)
@@ -27,8 +30,8 @@ function addAllDogsToDogBar(dogArray, filter = false){
   }
 }
 
+// adding span and event listener
 function addDogSpantoDogBar(dog){
-  const dogBar = document.querySelector("#dog-bar")
   const dogSpan = document.createElement("span")
   dogSpan.innerText = dog.name
   dogSpan.dataset.id = dog.id
@@ -38,14 +41,17 @@ function addDogSpantoDogBar(dog){
   dogBar.append(dogSpan)
 }
 
-function onDogSpanClick(e){
-  getSingleDog(e.target.dataset.id)
-    .then(addDogInfoToPage)
+
+function onDogSpanClick(event){
+  getSingleDog(event.target.dataset.id).then(addDogInfoToPage)
 }
 
+const dogInfo = document.querySelector("#dog-info")
+
+//  adding info to the dog page
 function addDogInfoToPage(dog){
-  const dogInfo = document.querySelector("#dog-info")
   dogInfo.innerHTML = ""
+
   const dogImg = document.createElement("img")
   dogImg.src = dog.image
 
@@ -55,25 +61,26 @@ function addDogInfoToPage(dog){
   const dogButton = document.createElement("button")
   dogButton.innerText = dog.isGoodDog ? "Good Dog!" : "Bad Dog!"
   dogButton.dataset.id = dog.id
+
   dogButton.addEventListener("click", onGoodDogButtonClick)
 
   dogInfo.append(dogImg, dogTitle, dogButton)
 }
 
-function onGoodDogButtonClick(e){
+function onGoodDogButtonClick(event){
   let newValue;
-  if (e.target.innerText.includes("Good")){
-    e.target.innerText = "Bad Dog"
+  if (event.target.innerText.includes("Good")){
+    event.target.innerText = "Bad Dog"
     newValue = false
   } else {
-    e.target.innerText = "Good Dog"
+    event.target.innerText = "Good Dog"
     newValue = true
   }
-  toggleGoodDog(e.target.dataset.id, newValue).then(updateDogBar)
+
+  toggleGoodDog(event.target.dataset.id, newValue).then(updateDogBar)
 }
 
 function updateDogBar(){
-  const filterDogsButton = document.querySelector("#good-dog-filter")
   if (filterDogsButton.innerText.includes("OFF")){
     getDogs().then(dogArray => addAllDogsToDogBar(dogArray))
   } else {
@@ -81,18 +88,16 @@ function updateDogBar(){
   }
 }
 
-// fetches:
-
+// fetching dogs , and  by ID
 const baseURL = "http://localhost:3000/pups"
-
 function getDogs(){
   return fetch(baseURL)
-    .then(r => r.json())
+    .then(response => response.json())
 }
 
 function getSingleDog(id){
   return fetch(baseURL + `/${id}`)
-    .then(r => r.json() )
+    .then(response => response.json() )
 }
 
 function toggleGoodDog(id, newValue){
@@ -106,5 +111,5 @@ function toggleGoodDog(id, newValue){
     })
   }
   return fetch(baseURL + `/${id}`, options)
-    .then(r => r.json())
+    .then(response => response.json())
 }
